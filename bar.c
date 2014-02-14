@@ -127,15 +127,17 @@ xft_char_width (wchar_t ch)
     int slot = xft_char_width_slot(ch);
     if (!xft_char[slot]) {
         XGlyphInfo gi;
-        XftTextExtents32 (dpy, sel_font->xft_ft, &ch, 1, &gi);
+        FT_UInt glyph = XftCharIndex (dpy, sel_font->xft_ft, ch);
+        XftFontLoadGlyphs (dpy, sel_font->xft_ft, FcFalse, &glyph, 1);
+        XftGlyphExtents (dpy, sel_font->xft_ft, &glyph, 1, &gi);
+        XftFontUnloadGlyphs (dpy, sel_font->xft_ft, &glyph, 1);
         xft_char[slot] = ch;
         xft_width[slot] = gi.xOff;
         return gi.xOff;
-    } else if (xft_char[slot] == ch) {
+    } else if (xft_char[slot] == ch)
         return xft_width[slot];
-    } else {
+    else
         return 0;
-    }
 }
 
 int
